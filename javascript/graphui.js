@@ -1,92 +1,51 @@
+require('./javascript/connection');
+
 const Raphael = require('Raphael');
-const connection = require('./javascript/connection');
-const os = require('os');
+const Color = require('./javascript/color_restricted');
+const Numbers = require('./javascript/numbers');
+const Ui = require('./javascript/ui');
+const NodeStyle = require('./javascript/styles/default');
+const Animations = require('./javascript/animations/default');
+const Os = require('os');
 const fs = require('fs');
 
-
-const getRandomInt = (min, max) => {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-const aroundPoint = (point) => {
-  const range = 1000;
-
-  return {
-    x: getRandomInt(point.x - range, point.x + range),
-    y: getRandomInt(poiny.y - range, poiny.y + raange)
-  }
-}
-
-const aroundNumber = (n) => {
-  const range = 500;
-  return getRandomInt(n - range/2, n + range/2);
-}
-
 window.onload = () => {
-  const dragger = function () {
+  const holder = document.getElementById('holder');
+  const paper = Raphael(holder);
+  const connections = [];
+  const centerX = holder.offsetLeft + holder.offsetWidth / 2;
+  const centerY = holder.offsetTop + holder.offsetHeight / 2;
+  const rootNode = paper.rect(centerX, centerY, 60, 60, 10);
+
+  const onStartDrag = function () {
+    console.log('onStartDrag!');
+    // TODO: make polymorphic
     this.ox = this.type == "rect" ? this.attr("x") : this.attr("cx");
     this.oy = this.type == "rect" ? this.attr("y") : this.attr("cy");
-    // this.animate({"fill-opacity": .2}, 500);
+    // TODO: discouple more
+    Animations.onStartDrag(this);
   };
 
-  const move = function(dx, dy) {
-    const att = this.type == "rect" ? {
+  const onMove = function(dx, dy) {
+    console.log('onMove!');
+    const attr = this.type == "rect" ? {
       x: this.ox + dx,
       y: this.oy + dy
     } : {
       cx: this.ox + dx,
       cy: this.oy + dy
     };
-    this.attr(att);
+    this.attr(attr);
 
+    // TODO: handle only relevant connections
     connections.forEach((conn) => {
       paper.connection(conn);
     });
-
-    paper.safari();
   };
 
-  const onStartDrag = function() {
-    // this.animate({
-    //   "fill-opacity": 0
-    // }, 500);
-  };
-
-  const holder = document.getElementById('holder');
-  const paper = Raphael(holder);
-  const connections = [];
-  const centerX = holder.offsetLeft + holder.offsetWidth / 2;
-  const centerY = holder.offsetTop + holder.offsetHeight / 2;
-  const rootNode = paper.rect(centerX, centerY, 60, 40, 10);
-
-  const randomX = () => {
-    return aroundNumber(centerX)
-  }
-
-  const randomY = () => {
-    return aroundNumber(centerY)
-  }
-
-  const randomColor = () => {
-    return "#"+((1<<24)*Math.random()|0).toString(16)
-  }
-
-  const getPosition = (e) => {
-    const p = {
-      x: e.clientX,
-      y: e.clientY
-    }
-
-    console.log(p);
-
-    return p;
-  };
-
-  const addRandomNode = () => {
-    const newNode = paper.ellipse(aroundNumber(centerX), aroundNumber(centerY), 30, 20);
-    nodes.push(newNode);
-    connections.push(paper.connection(rootNode, newNode, "#fff"));
-    return newNode;
+  const onEndDrag = function() {
+    console.log('onEndDrag!');
+    Animations.onEndDrag(this);
   };
 
   const addText = (e, t) => {
@@ -97,11 +56,15 @@ window.onload = () => {
     });
   }
 
-  const addNode = (p) => {
-    const newNode = paper.ellipse(p.x, p.y, 30, 20);
+  const addNode = (p = {x: Numbers.around(centerX),y: Numbers.around(centerY)}) => {
+    console.log('addNode!');
+    const newNode = paper.ellipse(p.x, p.y, 30, 30);
     nodes.push(newNode);
-    connections.push(paper.connection(rootNode, newNode, "#fff"));
-    update();
+    connections.push(paper.connection(rootNode, newNode, Color.random()));
+    // style(newNode);
+    holder.removeEventListener('click', addNode);
+    updateAll();
+    return newNode;
   };
 
   // const addShape = (shape, text) => {
@@ -110,24 +73,22 @@ window.onload = () => {
   //   debugger;
   // };
 
-  const rootNodeClicked = (e) => {
-    // addShape(addNode(getPosition()), 'blabla');
+  const onRootNodeClicked = (e) => {
+    console.log('onRootNodeClicked');
     holder.addEventListener('click', addNode);
-    // addNode(getPosition());
-    holder.removeEventListener('click');
-    update();
+    e.stopPropagation();
   };
 
   const nodes = [
     rootNode
   ];
 
-  // holder.addEventListener('click', addNode);
-  rootNode.click(rootNodeClicked);
+  rootNode.click(onRootNodeClicked);
 
   const style = (node) => {
-    // const color = Raphael.getColor();
-    const color = randomColor();
+    const color = Color.random();
+
+    console.log(color);
 
     node.attr({
       fill: color,
@@ -138,22 +99,27 @@ window.onload = () => {
     });
   }
 
-  const update = () => {
+  const updateAll = () => {
     nodes.forEach((node) => {
       style(node)
-      node.drag(move, dragger, onStartDrag);
+      node.drag(onMove, onStartDrag, onEndDrag);
     });
   }
 
-  fs.readdir(os.homedir(), (err, files) => {
+  fs.readdir(Os.homedir(), (err, files) => {
+    let count = 0;
+
     files.filter(file => {
       return file[0] !== '.';
     }).forEach(file => {
-      const node = addRandomNode();
+      if(count > 3)
+        return;
+      const node = addNode();
       style(node);
       const text = addText(node, file);
+      count++;
     });
   })
 
-  update();
+  updateAll();
 };
