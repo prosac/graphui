@@ -16,6 +16,15 @@ window.onload = () => {
   const centerX = holder.offsetLeft + holder.offsetWidth / 2;
   const centerY = holder.offsetTop + holder.offsetHeight / 2;
   const rootNode = paper.rect(centerX, centerY, 60, 60, 10);
+  const nodes = [ rootNode ];
+
+  const onRootNodeClicked = (e) => {
+    console.log('onRootNodeClicked');
+    holder.addEventListener('click', addNode);
+    e.stopPropagation();
+  };
+
+  rootNode.click(onRootNodeClicked);
 
   const onStartDrag = function () {
     console.log('onStartDrag!');
@@ -67,24 +76,6 @@ window.onload = () => {
     return newNode;
   };
 
-  // const addShape = (shape, text) => {
-  //   const set = paper.set();
-  //   set.push(shape, text);
-  //   debugger;
-  // };
-
-  const onRootNodeClicked = (e) => {
-    console.log('onRootNodeClicked');
-    holder.addEventListener('click', addNode);
-    e.stopPropagation();
-  };
-
-  const nodes = [
-    rootNode
-  ];
-
-  rootNode.click(onRootNodeClicked);
-
   const style = (node) => {
     const color = Color.random();
 
@@ -119,7 +110,8 @@ window.onload = () => {
       const text = addText(node, file);
       count++;
     });
-  })
+  });
+
 
   updateAll();
 };
