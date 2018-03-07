@@ -1,17 +1,25 @@
 module.exports = function() {
+  const randomInt = (min, max) => {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  const around = (n) => {
+    const range = 500;
+    return randomInt(n - range/2, n + range/2);
+  }
+
+  const randomX = () => {
+    return aroundNumber(centerX)
+  }
+
+  const randomY = () => {
+    return aroundNumber(centerY)
+  }
+
   return {
-    randomInt: (min, max) => {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    },
-    around: (n) => {
-      const range = 500;
-      return Numbers.randomInt(n - range/2, n + range/2);
-    },
-    randomX: () => {
-      return Numbers.aroundNumber(centerX)
-    },
-    randomY: () => {
-      return Numbers.aroundNumber(centerY)
-    }
+    randomInt: randomInt,
+    around: around,
+    randomX: randomX,
+    randomY: randomY
   }
 }()
