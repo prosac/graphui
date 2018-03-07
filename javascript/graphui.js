@@ -71,8 +71,7 @@ module.exports = function() {
     return newNode;
   };
 
-  const init = () => {
-    const holder = document.getElementById('holder');
+  const init = (holder) => {
     paper = Raphael(holder);
     centerX = holder.offsetLeft + holder.offsetWidth / 2;
     centerY = holder.offsetTop + holder.offsetHeight / 2;

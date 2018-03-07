@@ -3,7 +3,7 @@ const Os = require('os');
 const fs = require('fs');
 
 window.onload = () => {
-  Graphui.init();
+  Graphui.init(document.getElementById('holder'));
 };
 
 fs.readdir(Os.homedir(), (err, files) => {
