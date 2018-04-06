@@ -9,13 +9,13 @@ module.exports = function() {
   const Animations = require('./animations/default');
   const connections = [];
 
+  const nodes = [];
   let rootNode;
-  let nodes;
   let paper;
   let centerX;
   let centerY;
 
-  const style = (node) => {
+  const update = node => {
     const color = Color.random();
 
     node.attr({
@@ -25,13 +25,13 @@ module.exports = function() {
       "stroke-width": 2,
       cursor: "move"
     });
+
+    node.drag(onMove, onStartDrag, onEndDrag);
+    return node;
   }
 
   const updateAll = () => {
-    nodes.forEach((node) => {
-      style(node);
-      node.drag(onMove, onStartDrag, onEndDrag);
-    });
+    nodes.forEach(node => update(node))
   }
 
   const onStartDrag = function () {
@@ -67,7 +67,7 @@ module.exports = function() {
     nodes.push(newNode);
     connections.push(paper.connection(rootNode, newNode, Color.random()));
     holder.removeEventListener('click', addNode);
-    updateAll();
+    update(newNode);
     return newNode;
   };
 
@@ -76,7 +76,7 @@ module.exports = function() {
     centerX = holder.offsetLeft + holder.offsetWidth / 2;
     centerY = holder.offsetTop + holder.offsetHeight / 2;
     rootNode = paper.rect(centerX, centerY, 60, 60, 10);
-    nodes = [ rootNode ];
+    nodes.push(rootNode);
 
     const onRootNodeClicked = (e) => {
       holder.addEventListener('click', addNode);
