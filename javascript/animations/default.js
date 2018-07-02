@@ -1,5 +1,5 @@
 module.exports = function() {
-  console.log('using custom random color');
+  console.log('using custom animation');
 
   return {
     onStartDrag: (item) => {
