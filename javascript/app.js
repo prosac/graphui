@@ -2,19 +2,15 @@ const Graphui = require('./javascript/graphui');
 const Os = require('os');
 const fs = require('fs');
 
+// This is an example application using graphui to visualize some part of the file system
+
 window.onload = () => {
   Graphui.init(document.getElementById('holder'));
 };
 
 fs.readdir(Os.homedir(), (err, files) => {
-  let count = 0;
-
-  files.filter(file => {
-    return file[0] !== '.';
-  }).forEach(file => {
-    if(count > 3)
-      return;
-    const node = Graphui.addNode();
-    count++;
-  });
+  files
+    .filter(file => { return file[0] !== '.'; })
+    .slice(0, 3)
+    .forEach(() => Graphui.addNode());
 });
