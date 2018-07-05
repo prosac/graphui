@@ -2,9 +2,9 @@ module.exports = function() {
   require('./connection');
 
   const Raphael = require('Raphael');
-  const Color = require('./color_restricted');
-  const Numbers = require('./numbers');
-  const Ui = require('./ui');
+  const Color = require('./colors/color_restricted');
+  const Numbers = require('./utilities/math');
+  const Points = require('./utilities/points');
   const NodeStyle = require('./styles/default');
   const Animations = require('./animations/default');
   const connections = [];
